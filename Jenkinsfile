@@ -10,8 +10,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/sandeep1888/spring-petclinic.git'
+                git branch: 'main', credentialsId: 'javahome2', url: 'https://github.com/sandeep1888/spring-petclinic.git'
             }
         }
 
