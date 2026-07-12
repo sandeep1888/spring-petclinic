@@ -14,6 +14,17 @@ pipeline {
             }
         }
 
+        stage('Gitleaks Scan') {
+            steps {
+                sh '''
+                    gitleaks detect \
+                      --source . \
+                      --report-format sarif \
+                      --report-path gitleaks-report.sarif
+                '''
+            }
+        }
+
         stage('Java Version') {
             steps {
                 sh 'java -version'
