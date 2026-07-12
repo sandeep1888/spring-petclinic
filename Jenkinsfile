@@ -44,4 +44,15 @@ pipeline {
         }
 
     }
+    post {
+    failure {
+        sh '''
+        curl -X POST \
+        -u user:token \
+        -H "Content-Type: application/json" \
+        https://jira.company.com/rest/api/2/issue \
+        -d @jira.json
+        '''
+    }
+}
 }
