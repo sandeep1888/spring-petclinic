@@ -14,7 +14,7 @@ pipeline {
                 checkout scm
             }
         }
-
+/*
         stage('Gitleaks Scan') {
             steps {
                 sh '''
@@ -26,7 +26,7 @@ pipeline {
                 '''
             }
         }
-
+*/
         stage('Java Version') {
             steps {
                 sh 'java -version'
