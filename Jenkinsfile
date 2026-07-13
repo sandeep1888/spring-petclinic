@@ -57,7 +57,7 @@ pipeline {
         sh '''
         mkdir -p dependency-check-report
 
-        dependency-check.sh \
+        /opt/dependency-check-tool/bin/dependency-check.sh \
           --project "spring-petclinic" \
           --scan . \
           --format HTML \
