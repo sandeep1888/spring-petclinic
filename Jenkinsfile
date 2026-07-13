@@ -103,7 +103,7 @@ pipeline {
             dependency-check-report/**
         ''', allowEmptyArchive: true
             
-            allowEmptyArchive: true
+            
     }
     failure {
         /*
