@@ -29,14 +29,14 @@ pipeline {
 */
 
         stage('Semgrep Scan') {
-        steps {
+    steps {
         sh '''
-        semgrep scan \
-        --config p/security-audit \
-        --sarif \
-        --output semgrep-report.sarif
+        /home/ec2-user/.local/bin/semgrep scan \
+          --config p/security-audit \
+          --sarif \
+          --output semgrep-report.sarif
         '''
-        }
+    }
 }
         stage('Java Version') {
             steps {
