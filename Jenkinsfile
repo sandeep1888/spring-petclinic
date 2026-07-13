@@ -27,6 +27,17 @@ pipeline {
             }
         }
 */
+
+        stage('Semgrep Scan') {
+    steps {
+        sh '''
+        semgrep scan \
+        --config p/security-audit \
+        --sarif \
+        --output semgrep-report.sarif
+        '''
+    }
+}
         stage('Java Version') {
             steps {
                 sh 'java -version'
