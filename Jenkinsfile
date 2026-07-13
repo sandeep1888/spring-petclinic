@@ -64,6 +64,7 @@ pipeline {
           --format XML \
           --out dependency-check-report \
           --failOnCVSS 7
+          --noupdate
         '''
     }
 }
