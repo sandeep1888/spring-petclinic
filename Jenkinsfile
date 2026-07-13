@@ -26,7 +26,7 @@ pipeline {
                 '''
             }
         }
-*/
+
 
         stage('Semgrep Scan') {
     steps {
@@ -35,6 +35,19 @@ pipeline {
           --config p/security-audit \
           --sarif \
           --output semgrep-report.sarif
+        '''
+    }
+}
+*/
+        stage('Semgrep Scan') {
+    steps {
+        sh '''
+        mkdir -p /tmp/semgrep
+
+        /opt/semgrep/venv/bin/semgrep scan \
+          --config p/security-audit \
+          --sarif \
+          --output /tmp/semgrep/semgrep-report.sarif
         '''
     }
 }
@@ -60,6 +73,7 @@ pipeline {
     post {
         
     always {
+        sh 'cp /tmp/semgrep/semgrep-report.sarif . || true'
         archiveArtifacts artifacts: 'semgrep-report.sarif',  
             
             /*semgrep-report.sarif,
