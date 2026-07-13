@@ -55,7 +55,7 @@ pipeline {
         https://jira.company.com/rest/api/2/issue \
         -d @jira.json
         '''
-        /*
+        */
         echo "Build Failed"
     }
 }
