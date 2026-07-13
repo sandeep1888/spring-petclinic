@@ -19,7 +19,7 @@ pipeline {
             steps {
                 sh '''
                     gitleaks detect \
-                      ----no-git \
+                      --no-git \
                       --source . \
                       --report-format sarif \
                       --report-path gitleaks-report.sarif
@@ -47,6 +47,16 @@ pipeline {
 
     }
     post {
+        
+    always {
+        archiveArtifacts artifacts: 'gitleaks-report.sarif', 
+            /*semgrep-report.sarif,
+            dependency-check-report.html,
+            target/*.jar
+        '''*/
+            
+            allowEmptyArchive: true
+    }
     failure {
         /*
         sh '''
