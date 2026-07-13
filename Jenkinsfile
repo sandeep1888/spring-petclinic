@@ -60,7 +60,7 @@ pipeline {
     post {
         
     always {
-        archiveArtifacts artifacts: 'gitleaks-report.sarif', 'semgrep-report.sarif',  
+        archiveArtifacts artifacts: 'gitleaks-report.sarif, semgrep-report.sarif',  
             
             /*semgrep-report.sarif,
             dependency-check-report.html,
