@@ -10,7 +10,8 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/sandeep1888/spring-petclinic.git'
+          //    git branch: 'main', url: 'https://github.com/sandeep1888/spring-petclinic.git'
+                checkout scm
             }
         }
 
@@ -46,6 +47,7 @@ pipeline {
     }
     post {
     failure {
+        /*
         sh '''
         curl -X POST \
         -u user:token \
@@ -53,6 +55,8 @@ pipeline {
         https://jira.company.com/rest/api/2/issue \
         -d @jira.json
         '''
+        /*
+        echo "Build Failed"
     }
 }
 }
