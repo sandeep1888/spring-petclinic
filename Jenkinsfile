@@ -19,6 +19,7 @@ pipeline {
             steps {
                 sh '''
                     gitleaks detect \
+                      ----no-git \
                       --source . \
                       --report-format sarif \
                       --report-path gitleaks-report.sarif
