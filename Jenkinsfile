@@ -51,6 +51,23 @@ pipeline {
         '''
     }
 }
+
+        stage('OWASP Dependency Check') {
+    steps {
+        sh '''
+        mkdir -p dependency-check-report
+
+        dependency-check.sh \
+          --project "spring-petclinic" \
+          --scan . \
+          --format HTML \
+          --format XML \
+          --out dependency-check-report \
+          --failOnCVSS 7
+        '''
+    }
+}
+
         stage('Java Version') {
             steps {
                 sh 'java -version'
@@ -74,12 +91,17 @@ pipeline {
         
     always {
         sh 'cp /tmp/semgrep/semgrep-report.sarif . || true'
-        archiveArtifacts artifacts: 'semgrep-report.sarif',  
+       // archiveArtifacts artifacts: 'semgrep-report.sarif',  
             
             /*semgrep-report.sarif,
             dependency-check-report.html,
             target/*.jar
         '''*/
+
+         archiveArtifacts artifacts: '''
+            semgrep-report.sarif,
+            dependency-check-report/**
+        ''', allowEmptyArchive: true
             
             allowEmptyArchive: true
     }
