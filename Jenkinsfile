@@ -31,7 +31,7 @@ pipeline {
         stage('Semgrep Scan') {
     steps {
         sh '''
-        /home/ec2-user/.local/bin/semgrep scan \
+        /opt/semgrep/venv/bin/semgrep scan \
           --config p/security-audit \
           --sarif \
           --output semgrep-report.sarif
