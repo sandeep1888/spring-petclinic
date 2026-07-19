@@ -81,9 +81,20 @@ pipeline {
             }
         }
 
+        stage('Unit Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -102,6 +113,7 @@ pipeline {
          archiveArtifacts artifacts: '''
             semgrep-report.sarif,
             dependency-check-report/**
+            target/site/jacoco/**
         ''', allowEmptyArchive: true
             
             
