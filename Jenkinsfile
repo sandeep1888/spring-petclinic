@@ -63,7 +63,7 @@ pipeline {
           --format HTML \
           --format XML \
           --out dependency-check-report \
-          --failOnCVSS 7
+          --failOnCVSS 7 \
           --noupdate
         '''
     }
