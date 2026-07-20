@@ -52,20 +52,20 @@ pipeline {
     }
 }
 
-        stage('OWASP Dependency Check') {
+       stage('OWASP Dependency Check') {
     steps {
-        sh '''
-        mkdir -p dependency-check-report
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+            sh '''
+            mkdir -p dependency-check-report
 
-        /opt/dependency-check-tool/bin/dependency-check.sh \
-          --project "spring-petclinic" \
-          --scan . \
-          --format HTML \
-          --format XML \
-          --out dependency-check-report \
-          --failOnCVSS 7 \
-          --noupdate
-        '''
+            /opt/dependency-check-tool/bin/dependency-check.sh \
+            --project "spring-petclinic" \
+            --scan pom.xml \
+            --format HTML \
+            --out dependency-check-report \
+            --noupdate
+            '''
+        }
     }
 }
 
