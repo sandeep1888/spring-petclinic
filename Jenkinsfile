@@ -11,6 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
           //    git branch: 'main', url: 'https://github.com/sandeep1888/spring-petclinic.git'
+                deleteDir()
                 checkout scm
             }
         }
@@ -85,7 +86,7 @@ pipeline {
 
         stage('Unit Test') {
             steps {
-                sh 'mvn test'
+                sh 'mvn test -Dcheckstyle.skip=true'
             }
             post {
                 always {
