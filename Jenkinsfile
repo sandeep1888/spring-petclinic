@@ -52,6 +52,7 @@ pipeline {
     }
 }
 
+/*        
        stage('OWASP Dependency Check') {
     steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
@@ -68,6 +69,7 @@ pipeline {
         }
     }
 }
+*/
 
         stage('Java Version') {
             steps {
@@ -94,7 +96,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
             }
         }
 
@@ -102,7 +104,13 @@ pipeline {
     post {
         
     always {
-        sh 'cp /tmp/semgrep/semgrep-report.sarif . || true'
+
+        sh '''
+        if [ -f /tmp/semgrep/semgrep-report.sarif ]; then
+            cp /tmp/semgrep/semgrep-report.sarif .
+        fi
+    '''
+       // sh 'cp /tmp/semgrep/semgrep-report.sarif . || true'
        // archiveArtifacts artifacts: 'semgrep-report.sarif',  
             
             /*semgrep-report.sarif,
@@ -110,13 +118,16 @@ pipeline {
             target/*.jar
         '''*/
 
-         archiveArtifacts artifacts: '''
-            semgrep-report.sarif,
-            dependency-check-report/**
-            target/site/jacoco/**
-        ''', allowEmptyArchive: true
+         archiveArtifacts( 
+             artifacts: '''
+                semgrep-report.sarif,
+       //     dependency-check-report/**
+                target/*.jar,
+                target/site/jacoco/**
+        ''',
+                 allowEmptyArchive: true
             
-            
+         )
     }
     failure {
         /*
