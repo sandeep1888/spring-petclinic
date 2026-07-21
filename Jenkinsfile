@@ -103,8 +103,12 @@ pipeline {
 
 
         stage('Docker Image Build'){
-              sh 'docker build -t spring-petclinic:v1 .'
-              sh 'docker run -p 8080:8080 spring-petclinic:v1'
+            steps{
+                sh 'docker build -t spring-petclinic:v1 .'
+                sh 'docker run -p 8080:8080 spring-petclinic:v1'
+
+            }
+              
 
 
               }
