@@ -29,21 +29,13 @@ pipeline {
             whoami
 
             echo "Docker path:"
-            which docker || true
+            which docker
 
             echo "Docker version:"
-            docker --version || true
+            docker --version
 
             echo "Docker Compose version:"
-            docker compose version || true
-        '''
-    }
-}
-        stage('Docker Compose Check') {
-    steps {
-        sh '''
             docker compose version
-            docker compose config
         '''
     }
 }
