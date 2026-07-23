@@ -123,31 +123,33 @@ pipeline {
         }
 
         stage('Docker Image Test') {
-            steps {
-                sh '''
-                    docker run -d \
-                      --name spring-petclinic-test \
-                      -p 8080:8080 \
-                      ${IMAGE}
-                '''
+    steps {
+        sh '''
+            docker run -d \
+              --name spring-petclinic-test \
+              -p 18080:8080 \
+              ${IMAGE}
+        '''
 
-                sleep 15
+        echo 'Waiting for application to start...'
 
-                sh 'docker ps'
+        sleep 15
 
-                sh 'curl -f http://localhost:8080/ || true'
-            }
+        sh 'docker ps'
 
-            post {
-                always {
-                    sh '''
-                        docker logs spring-petclinic-test || true
-                        docker stop spring-petclinic-test || true
-                        docker rm spring-petclinic-test || true
-                    '''
-                }
-            }
+        sh 'curl -f http://localhost:18080/'
+    }
+
+    post {
+        always {
+            sh '''
+                docker logs spring-petclinic-test || true
+                docker stop spring-petclinic-test || true
+                docker rm spring-petclinic-test || true
+            '''
         }
+    }
+}
 
     }
 
