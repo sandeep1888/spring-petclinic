@@ -39,6 +39,14 @@ pipeline {
         '''
     }
 }
+        stage('Docker Compose Check') {
+    steps {
+        sh '''
+            docker compose version
+            docker compose config
+        '''
+    }
+}
 
         stage('Semgrep Scan') {
             steps {
