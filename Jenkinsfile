@@ -65,6 +65,28 @@ pipeline {
             }
         }
 
+        stage('Start Test Dependencies') {
+    steps {
+        sh '''
+            docker compose up -d postgres
+
+            echo "Waiting for PostgreSQL..."
+
+            for i in {1..30}; do
+                if docker exec full-postgres-1 pg_isready -U petclinic -d petclinic > /dev/null 2>&1; then
+                    echo "PostgreSQL is ready!"
+                    break
+                fi
+
+                echo "PostgreSQL not ready yet..."
+                sleep 2
+            done
+
+            docker compose ps
+        '''
+    }
+}
+
         stage('Unit Test') {
             steps {
                 sh 'mvn test -Dcheckstyle.skip=true'
@@ -79,6 +101,14 @@ pipeline {
                 }
             }
         }
+
+        stage('Stop Test Dependencies') {
+    steps {
+        sh '''
+            docker compose down
+        '''
+    }
+}
 
         stage('Build JAR') {
             steps {
