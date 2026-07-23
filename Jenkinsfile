@@ -22,6 +22,24 @@ pipeline {
             }
         }
 
+        stage('Docker Check') {
+    steps {
+        sh '''
+            echo "Running as:"
+            whoami
+
+            echo "Docker path:"
+            which docker || true
+
+            echo "Docker version:"
+            docker --version || true
+
+            echo "Docker Compose version:"
+            docker compose version || true
+        '''
+    }
+}
+
         stage('Semgrep Scan') {
             steps {
                 sh '''
