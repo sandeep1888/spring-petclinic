@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -6,71 +7,33 @@ pipeline {
         maven 'Maven'
     }
 
+    environment {
+        IMAGE_NAME = 'spring-petclinic'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE = "${IMAGE_NAME}:${IMAGE_TAG}"
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
-          //    git branch: 'main', url: 'https://github.com/sandeep1888/spring-petclinic.git'
                 deleteDir()
                 checkout scm
             }
         }
-/*
-        stage('Gitleaks Scan') {
+
+        stage('Semgrep Scan') {
             steps {
                 sh '''
-                    gitleaks detect \
-                      --no-git \
-                      --source . \
-                      --report-format sarif \
-                      --report-path gitleaks-report.sarif
+                    mkdir -p /tmp/semgrep
+
+                    /opt/semgrep/venv/bin/semgrep scan \
+                      --config p/security-audit \
+                      --sarif \
+                      --output /tmp/semgrep/semgrep-report.sarif
                 '''
             }
         }
-
-
-        stage('Semgrep Scan') {
-    steps {
-        sh '''
-        /opt/semgrep/venv/bin/semgrep scan \
-          --config p/security-audit \
-          --sarif \
-          --output semgrep-report.sarif
-        '''
-    }
-}
-*/
-        stage('Semgrep Scan') {
-    steps {
-        sh '''
-        mkdir -p /tmp/semgrep
-
-        /opt/semgrep/venv/bin/semgrep scan \
-          --config p/security-audit \
-          --sarif \
-          --output /tmp/semgrep/semgrep-report.sarif
-        '''
-    }
-}
-
-/*        
-       stage('OWASP Dependency Check') {
-    steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-            sh '''
-            mkdir -p dependency-check-report
-
-            /opt/dependency-check-tool/bin/dependency-check.sh \
-            --project "spring-petclinic" \
-            --scan pom.xml \
-            --format HTML \
-            --out dependency-check-report \
-            --noupdate
-            '''
-        }
-    }
-}
-*/
 
         stage('Java Version') {
             steps {
@@ -88,72 +51,80 @@ pipeline {
             steps {
                 sh 'mvn test -Dcheckstyle.skip=true'
             }
+
             post {
                 always {
-                    junit 'target/surefire-reports/*.xml'
+                    junit(
+                        testResults: 'target/surefire-reports/*.xml',
+                        allowEmptyResults: true
+                    )
                 }
             }
         }
 
-        stage('Build') {
+        stage('Build JAR') {
             steps {
                 sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
             }
         }
 
-
-        stage('Docker Image Build'){
-            steps{
-                sh 'docker build -t spring-petclinic:v1 .'
-                sh 'docker run -p 8080:8080 spring-petclinic:v1'
-
+        stage('Docker Image Build') {
+            steps {
+                sh 'docker build -t ${IMAGE} .'
             }
-              
+        }
 
+        stage('Docker Image Test') {
+            steps {
+                sh '''
+                    docker run -d \
+                      --name spring-petclinic-test \
+                      -p 8080:8080 \
+                      ${IMAGE}
+                '''
 
-              }
-              
+                sleep 15
+
+                sh 'docker ps'
+
+                sh 'curl -f http://localhost:8080/ || true'
+            }
+
+            post {
+                always {
+                    sh '''
+                        docker logs spring-petclinic-test || true
+                        docker stop spring-petclinic-test || true
+                        docker rm spring-petclinic-test || true
+                    '''
+                }
+            }
+        }
 
     }
+
     post {
-        
-    always {
 
-        sh '''
-        if [ -f /tmp/semgrep/semgrep-report.sarif ]; then
-            cp /tmp/semgrep/semgrep-report.sarif .
-        fi
-    '''
-       // sh 'cp /tmp/semgrep/semgrep-report.sarif . || true'
-       // archiveArtifacts artifacts: 'semgrep-report.sarif',  
-            
-            /*semgrep-report.sarif,
-            dependency-check-report.html,
-            target/*.jar
-        '''*/
+        always {
 
-         archiveArtifacts( 
-             artifacts: '''
-                semgrep-report.sarif,
-       //     dependency-check-report/**
-                target/*.jar,
-                target/site/jacoco/**
-        ''',
-                 allowEmptyArchive: true
-            
-         )
+            sh '''
+                if [ -f /tmp/semgrep/semgrep-report.sarif ]; then
+                    cp /tmp/semgrep/semgrep-report.sarif .
+                fi
+            '''
+
+            archiveArtifacts(
+                artifacts: '''
+                    semgrep-report.sarif,
+                    target/*.jar,
+                    target/site/jacoco/**
+                ''',
+                allowEmptyArchive: true
+            )
+        }
+
+        failure {
+            echo 'Build Failed'
+        }
     }
-    failure {
-        /*
-        sh '''
-        curl -X POST \
-        -u user:token \
-        -H "Content-Type: application/json" \
-        https://jira.company.com/rest/api/2/issue \
-        -d @jira.json
-        '''
-        */
-        echo "Build Failed"
-    }
-}
 }
